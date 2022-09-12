@@ -2,3 +2,6 @@
 ^codecov\.yml$
 ^\.github$
 ^\.idea$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

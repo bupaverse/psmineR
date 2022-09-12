@@ -26,7 +26,8 @@ Imports:
     lifecycle
 RoxygenNote: 7.2.1
 URL: https://www.bupar.net,
-     https://github.com/bupaverse/psmineR
+    https://github.com/bupaverse/psmineR,
+    https://bupaverse.github.io/psmineR/
 Suggests:
     knitr,
     eventdataR,
