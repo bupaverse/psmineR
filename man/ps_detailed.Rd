@@ -9,7 +9,7 @@ ps_detailed(eventlog, segment_coverage, n_segments, classification_attribute)
 \arguments{
 \item{eventlog}{The Event Log object on which you want to mine the performance spectrum}
 
-\item{segment_coverage}{The percentage of cases in which each segment must be present in order to be visualised in the spectrum. Defaults to 0.2 (20%). Ignored if n_segments is specified.}
+\item{segment_coverage}{The percentage of cases in which each segment must be present in order to be visualised in the spectrum. Defaults to 0.2 (20\%). Ignored if n_segments is specified.}
 
 \item{n_segments}{Alternative to segments_coverage, Visualise only the top n segments in terms of frequency.}
 

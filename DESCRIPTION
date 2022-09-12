@@ -4,7 +4,8 @@ Title: Performance Spectrum Miner For Event Data
 Version: 0.1.0
 Date: 2020-11-09
 Authors@R: c(person("Greg","Van Houdt", email = "greg.vanhoudt@uhasselt.be", role = "aut"),
-    person("Gert","Janssenswillen",email = "gert.janssenswillen@uhasselt.be", role = c("ctb","cre")))
+             person("Gert","Janssenswillen",email = "gert.janssenswillen@uhasselt.be", role = c("ctb","cre")),
+             person("Gerard","van Hulzen",email = "gerard.vanhulzen@uhasselt.be", role = c("ctb")))
 Description: Compute detailed and aggregated performance spectrum for event data. 
 Depends: 
     R (>= 3.0.0)
@@ -12,16 +13,27 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-    bupaR,
+    bupaR (>= 0.5.0),
     dplyr,
+    data.table,
+    forcats,
     ggplot2,
     tidyr,
+    rlang,
     shiny,
     plotly,
-    miniUI
-RoxygenNote: 7.1.2
-URL: https://www.bupar.net, https://github.com/bupaverse/psmineR
-Suggests: knitr, eventdataR,
-    rmarkdown
+    miniUI,
+    lifecycle
+RoxygenNote: 7.2.1
+URL: https://www.bupar.net,
+     https://github.com/bupaverse/psmineR
+Suggests:
+    knitr,
+    eventdataR,
+    rmarkdown,
+    covr,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 BugReports: https://github.com/bupaverse/psmineR/issues
+Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 3

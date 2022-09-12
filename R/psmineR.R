@@ -1,8 +1,10 @@
-#' @title TBA
-#' @description TBA
+#' @title psmineR
+#' @description Performance Spectrum Miner For Event Data
 #'
 #' @docType package
 #' @name psmineR
+
+## usethis namespace: start
 #' @import bupaR
 #' @import dplyr
 #' @import ggplot2
@@ -12,8 +14,9 @@
 #' @import miniUI
 #' @import forcats
 #' @importFrom data.table data.table
+#' @importFrom lifecycle deprecated
+## usethis namespace: end
 
-
-
-globalVariables(c(".", ".order","min_order"))
+globalVariables(c(".", ":="))
+"_PACKAGE"
 NULL
