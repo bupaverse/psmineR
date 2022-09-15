@@ -20,6 +20,7 @@ Imports:
     ggplot2,
     tidyr,
     rlang,
+    glue,
     shiny,
     plotly,
     miniUI,

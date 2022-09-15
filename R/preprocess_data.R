@@ -1,105 +1,172 @@
 
+construct_segments <- function(log, classification) {
 
-
-construct_segments <- function(eventlog, classification_attribute) {
-  eventlog %>%
-    rename(TIMESTAMP_CLASSIFIER_ = !!bupaR:::timestamp_(eventlog)) %>%
+  log %>%
     data.table() -> dt
 
-  if(classification_attribute == "quartile") {
-     dt[, list(start_t = min(TIMESTAMP_CLASSIFIER_), end_t = max(TIMESTAMP_CLASSIFIER_)),
-       by = c(case_id(eventlog), activity_id(eventlog), activity_instance_id(eventlog))] -> prepared_log
-  } else {
-
-    dt %>%
-      rename(CLASSIFICATION = !!sym(classification_attribute)) -> dt
-
-    dt[, list(start_t = min(TIMESTAMP_CLASSIFIER_), end_t = max(TIMESTAMP_CLASSIFIER_)),
-       by = c(case_id(eventlog), activity_id(eventlog), activity_instance_id(eventlog), "CLASSIFICATION")] -> prepared_log
+  if (is.eventlog(log)) {
+    dt <- construct_segments.eventlog(log, classification, dt)
+  } else if (is.activitylog(log)) {
+    dt <- construct_segments.activitylog(log, classification, dt)
   }
 
-  prepared_log %>%
-    rename(ACTIVITY_ = !!bupaR:::activity_id_(eventlog),
-           ACTIVITY_INSTANCE_ = !!bupaR:::activity_instance_id_(eventlog)) -> prepared_log
+  setnames(dt, activity_id(log), "ACTIVITY")
+  by_case <- case_id(log)
 
-  if(classification_attribute == "quartile") {
-    prepared_log[, list(ACTIVITY_,
-                        ACTIVITY_INSTANCE_,
-                        start_t,
-                        end_t,
-                        yb = shift(ACTIVITY_, type = "lead"),
-                        tb = shift(start_t, type = "lead")) ,
-                 by = c(case_id(eventlog))] -> prepared_log
+  if(classification == "quartile") {
+    dt[, .(ACTIVITY,
+           ACTIVITY_INSTANCE,
+           start_t,
+           end_t,
+           yb = shift(ACTIVITY, n = 1L, type = "lead"),
+           tb = shift(start_t, n = 1L, type = "lead")),
+         by = by_case] -> dt
   } else {
-    prepared_log[, list(ACTIVITY_,
-                        ACTIVITY_INSTANCE_,
-                        start_t,
-                        end_t,
-                        CLASSIFICATION,
-                        yb = shift(ACTIVITY_, type = "lead"),
-                        tb = shift(start_t, type = "lead")) ,
-                 by = c(case_id(eventlog))] -> prepared_log
+    dt[, .(ACTIVITY,
+           ACTIVITY_INSTANCE,
+           start_t,
+           end_t,
+           CLASSIFICATION,
+           yb = shift(ACTIVITY, n = 1L, type = "lead"),
+           tb = shift(start_t, n = 1L, type = "lead")),
+         by = by_case] -> dt
   }
 
+  dt <- na.omit(dt, cols = "yb")
+  setnames(dt, c("ACTIVITY", "end_t"), c("ya", "ta"))
 
+  dt[, segment := stringi::stri_c(ya, yb, sep = " >> ")]
 
-  prepared_log %>%
-    filter(!is.na(yb)) %>%
-    rename(ya = ACTIVITY_, ta = end_t) %>%
-    mutate(segment = paste(ya, yb, sep = " >> "))
-
+  return(dt)
 }
 
-build_classifier <- function(eventlog, classification_attribute) {
-  if(classification_attribute == "quartile") {
+construct_segments.eventlog <- function(log, classification, dt) {
 
-    eventlog <- eventlog %>%
-      mutate(delta = as.double(tb - ta, units = "days")) %>%
-      group_by(segment) %>%
-      mutate(
-        CLASSIFICATION = if_else(
-          delta <= quantile(delta, 0.25), 1,
-          if_else(
-            delta <= quantile(delta, 0.5), 2,
-            if_else(
-              delta <= quantile(delta, 0.75), 3, 4
-            )
-          )
-        ),
-        CLASSIFICATION = as.factor(CLASSIFICATION)
-      )
+  setnames(dt, c(timestamp(log), activity_instance_id(log)), c("TIMESTAMP_CLASSIFIER", "ACTIVITY_INSTANCE"))
+
+  if(classification == "quartile") {
+    dt[, ":="(start_t = min(TIMESTAMP_CLASSIFIER),
+              end_t = max(TIMESTAMP_CLASSIFIER)),
+         by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE")]
+  } else {
+    setnames(dt, classification, "CLASSIFICATION")
+
+    dt[, ":="(start_t = min(TIMESTAMP_CLASSIFIER),
+              end_t = max(TIMESTAMP_CLASSIFIER)),
+         by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE", "CLASSIFICATION")]
   }
-  eventlog
 
+  return(dt)
 }
 
-filter_segments <- function(eventlog, segment_coverage = NULL, n_segments = NULL, mapping) {
+construct_segments.activitylog <- function(log, classification, dt) {
 
-  tot_n_cases <- length(unique(eventlog[[1]]))
+  TIMESTAMP_CLASSIFIERS <- get_col_index(dt, timestamps(log))
 
-  eventlog %>%
-    group_by(segment) %>%
-    summarize(n_cases = n_distinct(!!bupaR:::case_id_(mapping)), n = n()) -> counts
+  dt[, ACTIVITY_INSTANCE := .I]
+
+  if (classification == "quartile") {
+    dt[, ":="(start_t = do.call(pmin, c(na.rm = TRUE, .SD)),
+              end_t = do.call(pmax, c(na.rm = TRUE, .SD))),
+         .SDcols = TIMESTAMP_CLASSIFIERS]
+  } else {
+    setnames(dt, classification, "CLASSIFICATION")
+
+    dt[, ":="(start_t = do.call(pmin, c(na.rm = TRUE, .SD)),
+              end_t = do.call(pmax, c(na.rm = TRUE, .SD))),
+         .SDcols = TIMESTAMP_CLASSIFIERS,
+         by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE", "CLASSIFICATION")]
+  }
+
+  return(dt)
+}
+
+# Needs the construct_segments data.table
+build_classifier <- function(dt, classification) {
+
+  if(classification == "quartile") {
+    dt[, delta := as.double(tb - ta, units = "days")]
+
+    q <- quantile(dt$delta, probs = c(0.25, 0.5, 0.75))
+
+    dt[, CLASSIFICATION := fcase(delta <= q[1], 1L,
+                                 delta <= q[2], 2L,
+                                 delta <= q[3], 3L,
+                                 default = 4L),
+         by = "segment"][,
+         CLASSIFICATION := as.factor(CLASSIFICATION)]
+
+    # Old code => replaced by above
+    # log <- log %>%
+    #   mutate(delta = as.double(tb - ta, units = "days")) %>%
+    #   group_by(segment) %>%
+    #   mutate(
+    #     CLASSIFICATION = if_else(
+    #       delta <= quantile(delta, 0.25), 1,
+    #       if_else(
+    #         delta <= quantile(delta, 0.5), 2,
+    #         if_else(
+    #           delta <= quantile(delta, 0.75), 3, 4
+    #         )
+    #       )
+    #     ),
+    #     CLASSIFICATION = as.factor(CLASSIFICATION)
+    #   )
+  }
+
+  return(dt)
+}
+
+# Needs the build_classifier data.table + original log for mapping vars
+filter_segments <- function(dt, log, segment_coverage = NULL, n_segments = NULL) {
+
+  cases <- n_cases(log)
+
+  dt[, .(n_cases = uniqueN(get(case_id(log))),
+         n = .N),
+       by = "segment"] -> counts
+
+  #dt %>%
+  #  group_by(segment) %>%
+  #  summarize(n_cases = n_distinct(!!bupaR:::case_id_(log)), n = n()) -> counts
 
   if(is.null(n_segments)) {
-    counts %>%
-      filter(n_cases >= segment_coverage*tot_n_cases) -> counts
+    counts[n_cases >= segment_coverage * cases] -> counts
   } else {
-    counts %>%
-      arrange(-n) %>%
-      slice(1:n_segments) -> counts
+    setorderv(counts, cols = "n", order = -1L)
+    counts[1:n_segments] -> counts
+    #counts %>%
+    #  arrange(-n) %>%
+    #  slice(1:n_segments) -> counts
   }
 
-  eventlog %>%
-    semi_join(counts, by = "segment")
+  # semi_join dt with counts
+  setkeyv(counts, cols = "segment")
+  dt <- unique(dt[counts$segment, on = "segment", nomatch = 0L])
+
+  #dt %>%
+  #  semi_join(counts, by = "segment")
+
+  return(dt)
 }
 
-order_segments <- function(log, mapping) {
-  seg_ordering <- log %>%
-    group_by(!!bupaR:::case_id_(mapping)) %>%
-    mutate(i = row_number(start_t)) %>%
-    group_by(segment) %>%
-    summarise(seg_order = median(i))
+# Needs the filter_segments data.table + original log for mapping vars
+order_segments <- function(dt, log) {
 
-  log <- left_join(log, seg_ordering, by = "segment")
+  dt[, i := .I,
+       by = c(case_id(log))][,
+       .(seg_order = median(i)),
+       by = "segment"] -> seg_ordering
+
+  dt <- seg_ordering[dt, on = "segment"]
+
+  return(dt)
+
+  # seg_ordering <- log %>%
+  #   group_by(!!bupaR:::case_id_(mapping)) %>%
+  #   mutate(i = row_number(start_t)) %>%
+  #   group_by(segment) %>%
+  #   summarise(seg_order = median(i))
+  #
+  # log <- left_join(log, seg_ordering, by = "segment")
 }

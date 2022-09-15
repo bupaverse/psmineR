@@ -13,8 +13,10 @@
 #' @import plotly
 #' @import miniUI
 #' @import forcats
-#' @importFrom data.table data.table
+#' @importFrom glue glue
+#' @importFrom data.table data.table na.omit := .I .SD .N uniqueN setorderv setkeyv
 #' @importFrom lifecycle deprecated
+#' @importFrom rlang is_missing maybe_missing abort warn
 ## usethis namespace: end
 
 globalVariables(c(".", ":="))
