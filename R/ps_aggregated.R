@@ -60,11 +60,19 @@ ps_aggregated.log <- function(log,
     classification <- "quartile"
   }
 
-  log %>%
+  old <- log %>%
+    construct_segments_old(classification) %>%
+    build_classifier_old(classification) %>%
+    filter_segments_old(segment_coverage = segment_coverage, n_segments = n_segments, mapping(log)) %>%
+    order_segments_old(mapping(log))
+
+  seg <- log %>%
     construct_segments(classification) %>%
     build_classifier(classification) %>%
     filter_segments(log = log, segment_coverage = segment_coverage, n_segments = n_segments) %>%
-    order_segments(log) -> seg
+    order_segments(log)
+
+  return(seg)
 
   # Select necessary columns
   # log <- eventlog %>%
@@ -74,5 +82,5 @@ ps_aggregated.log <- function(log,
   # log <- log %>% preprocess_data(segment_coverage, classification_attribute)
 
   # Create the plot
-  plot_aggregated(seg, "CLASSIFICATION", grouping, bins)
+  #plot_aggregated(seg, "CLASSIFICATION", grouping, bins)
 }

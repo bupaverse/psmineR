@@ -45,15 +45,15 @@ construct_segments.eventlog <- function(log, classification, dt) {
   setnames(dt, c(timestamp(log), activity_instance_id(log)), c("TIMESTAMP_CLASSIFIER", "ACTIVITY_INSTANCE"))
 
   if(classification == "quartile") {
-    dt[, ":="(start_t = min(TIMESTAMP_CLASSIFIER),
-              end_t = max(TIMESTAMP_CLASSIFIER)),
-         by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE")]
+    dt[, .(start_t = min(TIMESTAMP_CLASSIFIER),
+           end_t = max(TIMESTAMP_CLASSIFIER)),
+         by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE")] -> dt
   } else {
     setnames(dt, classification, "CLASSIFICATION")
 
-    dt[, ":="(start_t = min(TIMESTAMP_CLASSIFIER),
-              end_t = max(TIMESTAMP_CLASSIFIER)),
-         by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE", "CLASSIFICATION")]
+    dt[, .(start_t = min(TIMESTAMP_CLASSIFIER),
+           end_t = max(TIMESTAMP_CLASSIFIER)),
+         by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE", "CLASSIFICATION")] -> dt
   }
 
   return(dt)
@@ -66,14 +66,14 @@ construct_segments.activitylog <- function(log, classification, dt) {
   dt[, ACTIVITY_INSTANCE := .I]
 
   if (classification == "quartile") {
-    dt[, ":="(start_t = do.call(pmin, c(na.rm = TRUE, .SD)),
-              end_t = do.call(pmax, c(na.rm = TRUE, .SD))),
+    dt[, .(start_t = do.call(pmin, c(na.rm = TRUE, .SD)),
+           end_t = do.call(pmax, c(na.rm = TRUE, .SD))),
          .SDcols = TIMESTAMP_CLASSIFIERS]
   } else {
     setnames(dt, classification, "CLASSIFICATION")
 
-    dt[, ":="(start_t = do.call(pmin, c(na.rm = TRUE, .SD)),
-              end_t = do.call(pmax, c(na.rm = TRUE, .SD))),
+    dt[, .(start_t = do.call(pmin, c(na.rm = TRUE, .SD)),
+           end_t = do.call(pmax, c(na.rm = TRUE, .SD))),
          .SDcols = TIMESTAMP_CLASSIFIERS,
          by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE", "CLASSIFICATION")]
   }
@@ -87,11 +87,9 @@ build_classifier <- function(dt, classification) {
   if(classification == "quartile") {
     dt[, delta := as.double(tb - ta, units = "days")]
 
-    q <- quantile(dt$delta, probs = c(0.25, 0.5, 0.75))
-
-    dt[, CLASSIFICATION := fcase(delta <= q[1], 1L,
-                                 delta <= q[2], 2L,
-                                 delta <= q[3], 3L,
+    dt[, CLASSIFICATION := fcase(delta <= quantile(delta, 0.25), 1L,
+                                 delta <= quantile(delta, 0.5), 2L,
+                                 delta <= quantile(delta, 0.75), 3L,
                                  default = 4L),
          by = "segment"][,
          CLASSIFICATION := as.factor(CLASSIFICATION)]
@@ -153,8 +151,8 @@ filter_segments <- function(dt, log, segment_coverage = NULL, n_segments = NULL)
 # Needs the filter_segments data.table + original log for mapping vars
 order_segments <- function(dt, log) {
 
-  dt[, i := .I,
-       by = c(case_id(log))][,
+  setorderv(dt, cols = "start_t")
+  dt[, i := rowidv(dt, cols = case_id(log))][,
        .(seg_order = median(i)),
        by = "segment"] -> seg_ordering
 

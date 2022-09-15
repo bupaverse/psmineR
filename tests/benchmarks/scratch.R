@@ -102,3 +102,31 @@ bench::mark(
 #2 merge        2.31ms 2.99ms    315. 552.02KB    2.54   992     8   3.15s <NULL>
 #3 left_join    3.43ms 3.87ms    244.   1.14MB    6.01   976    24      4s <NULL>
 #4 keys          1.3ms 1.78ms    523. 514.65KB    4.22   992     8    1.9s <NULL>
+
+
+x <- data.table(X = sample.int(100, 10000, replace = TRUE),
+                Y = sample.int(10000, 10000, replace = TRUE))
+y <- copy(x)
+z <- copy(x)
+v <- copy(x)
+w <- copy(x)
+
+# rowidv is fastest
+bench::mark(
+  rowid = x[, id := rowid(X)],
+  rowidv = v[, id := rowidv(v, cols = "X")],
+  seq_len = y[, id := seq_len(.N), by = X],
+  rleid = z[, id := rleid(Y), by = X],
+  row_number = x %>% group_by(X) %>% mutate(id = row_number()),
+  iterations = 1000,
+  check = FALSE
+)
+
+# A tibble: 5 x 13
+#expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result memory               time               gc
+#<bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list> <list>               <list>             <list>
+#1 rowid       536.7us  753.9us     1218.     112KB     3.66   997     3   818.75ms <NULL> <Rprofmem [9 x 3]>   <bench_tm [1,000]> <tibble [1,000 x 3]>
+#2 rowidv      521.2us  731.9us     1285.     112KB     5.16   996     4   774.94ms <NULL> <Rprofmem [9 x 3]>   <bench_tm [1,000]> <tibble [1,000 x 3]>
+#3 seq_len     696.6us  946.2us     1019.     141KB     3.07   997     3   978.18ms <NULL> <Rprofmem [110 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
+#4 rleid        1.09ms   1.48ms      642.     158KB     2.58   996     4      1.55s <NULL> <Rprofmem [114 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
+#5 row_number   7.77ms   8.69ms      111.     296KB     2.49   978    22      8.83s <NULL> <Rprofmem [262 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
