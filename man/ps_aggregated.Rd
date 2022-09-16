@@ -3,29 +3,39 @@
 \name{ps_aggregated}
 \alias{ps_aggregated}
 \alias{ps_aggregated.log}
+\alias{ps_aggregated.grouped_log}
 \title{Aggregated Performance Spectrum}
 \usage{
 ps_aggregated(
   log,
-  segment_coverage = 0.2,
+  segment_coverage,
   n_segments,
-  classification_attribute = NULL,
-  grouping = c("start", "stop"),
+  classification = NULL,
+  grouping = c("start", "complete"),
   bins = NULL
 )
 
 \method{ps_aggregated}{log}(
   log,
-  segment_coverage = 0.2,
+  segment_coverage,
   n_segments,
-  classification_attribute = NULL,
-  grouping = c("start", "stop"),
+  classification = NULL,
+  grouping = c("start", "complete"),
+  bins = NULL
+)
+
+\method{ps_aggregated}{grouped_log}(
+  log,
+  segment_coverage,
+  n_segments,
+  classification = NULL,
+  grouping = c("start", "complete"),
   bins = NULL
 )
 }
 \arguments{
-\item{log}{\code{\link[bupaR]{log}}: Object of class \code{\link[bupaR]{log}} or derivatives (\code{\link[bupaR]{grouped_log}},
-\code{\link[bupaR]{eventlog}}, \code{\link[bupaR]{activitylog}}, etc.).}
+\item{log}{\code{\link[bupaR:log]{log}}: Object of class \code{\link[bupaR:log]{log}} or derivatives (\code{\link[bupaR:grouped_log]{grouped_log}},
+\code{\link[bupaR:eventlog]{eventlog}}, \code{\link[bupaR:activitylog]{activitylog}}, etc.).}
 
 \item{segment_coverage, n_segments}{\code{\link{numeric}}: Provide either \code{segment_coverage} or \code{n_segments}. If neither is
 provided, \code{segment_coverage = 0.2} will be used.\cr
@@ -33,25 +43,37 @@ provided, \code{segment_coverage = 0.2} will be used.\cr
 Ignored if \code{n_segments} is specified.\cr
 \code{n_segments}: Visualise only the top \code{n} segments based on frequency.}
 
-\item{classification_attribute}{\code{\link{character}} (default \code{\link{NULL}}): The variable defining the colour legend.
-If \code{\link{NULL}} or \code{"quartile"}, a quartile variable dividing the durations of the segments in quartiles is calculated.}
+\item{classification}{\code{\link{character}} (default \code{\link{NULL}}): The variable defining the colour legend. This variable should be present in \code{log}.\cr
+If \code{\link{NULL}} (default) when \code{log} is a \code{\link[bupaR:grouped_log]{grouped_log}}, the first grouping variable will be used as \code{classification}.\cr
+If \code{\link{NULL}} (default) or \code{"quartile"} when \code{log} is an \code{\link[bupaR:eventlog]{eventlog}} or \code{\link[bupaR:activitylog]{activitylog}},
+a quartile variable dividing the durations of the segments in quartiles is calculated.}
 
 \item{grouping}{\code{\link{character}} (default \code{"start"}): The timestamps, \code{"start"} or \code{"complete"}, which are binned in the histogram.}
 
-\item{bins}{The number of bins in the histogram. If left at \code{NULL}, 30 bins are selected automatically}
+\item{bins}{\code{\link{numeric}} (default \code{\link{NULL}}): The number of bins in the aggregated performance spectrum.
+If left \code{\link{NULL}}, 30 bins are selected automatically.}
 }
 \value{
 A \code{\link{ggplot2}} object describing the aggregated performance spectrum.
 }
 \description{
-Construct the aggregated performance spectrum in the plot viewer.
+Plots the aggregated performance spectrum.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{ps_aggregated(log)}: Calculate aggregated performance spectrum for a \code{\link[bupaR]{log}}.
+\item \code{ps_aggregated(log)}: Calculate aggregated performance spectrum for a \code{\link[bupaR:log]{log}}.
+
+\item \code{ps_aggregated(grouped_log)}: Calculate aggregated performance spectrum for a \code{\link[bupaR:grouped_log]{grouped_log}}.
 
 }}
 \examples{
-ps_aggregated(sepsis, "quartile", "start", 15, 0.2)
+library(psmineR)
+library(eventdataR)
+
+sepsis \%>\%
+ ps_aggregated(segment_coverage = 0.2,
+               classification = "quartile",
+               grouping = "start",
+               bins = 15)
 
 }

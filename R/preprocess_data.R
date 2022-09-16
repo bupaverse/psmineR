@@ -22,14 +22,22 @@ construct_segments <- function(log, classification) {
            tb = shift(start_t, n = 1L, type = "lead")),
          by = by_case] -> dt
   } else {
+    #cols <- c(eval(case_id(log)), "ACTIVITY", "ACTIVITY_INSTANCE", "start_t", "end_t", eval(classification))
+    col <- as.name(classification)
+    #dt[, ..cols][, ":="(yb = shift(ACTIVITY, n = 1L, type = "lead"),
+    #                 tb = shift(start_t, n = 1L, type = "lead")),
+    #     by = by_case] -> dt
     dt[, .(ACTIVITY,
            ACTIVITY_INSTANCE,
            start_t,
            end_t,
-           CLASSIFICATION,
+           get(classification),
            yb = shift(ACTIVITY, n = 1L, type = "lead"),
            tb = shift(start_t, n = 1L, type = "lead")),
          by = by_case] -> dt
+
+    # For some reason, the classification column is renamed to "V5" => manually rename it back to the value of classification.
+    setnames(dt, "V5", classification)
   }
 
   dt <- na.omit(dt, cols = "yb")
@@ -49,11 +57,11 @@ construct_segments.eventlog <- function(log, classification, dt) {
            end_t = max(TIMESTAMP_CLASSIFIER)),
          by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE")] -> dt
   } else {
-    setnames(dt, classification, "CLASSIFICATION")
+    #setnames(dt, classification, "CLASSIFICATION")
 
     dt[, .(start_t = min(TIMESTAMP_CLASSIFIER),
            end_t = max(TIMESTAMP_CLASSIFIER)),
-         by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE", "CLASSIFICATION")] -> dt
+         by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE", classification)] -> dt
   }
 
   return(dt)
@@ -66,16 +74,16 @@ construct_segments.activitylog <- function(log, classification, dt) {
   dt[, ACTIVITY_INSTANCE := .I]
 
   if (classification == "quartile") {
-    dt[, .(start_t = do.call(pmin, c(na.rm = TRUE, .SD)),
-           end_t = do.call(pmax, c(na.rm = TRUE, .SD))),
-         .SDcols = TIMESTAMP_CLASSIFIERS]
+    dt[, ":="(start_t = do.call(pmin, c(na.rm = TRUE, .SD)),
+              end_t = do.call(pmax, c(na.rm = TRUE, .SD))),
+         .SDcols = TIMESTAMP_CLASSIFIERS] -> dt
   } else {
-    setnames(dt, classification, "CLASSIFICATION")
+    #setnames(dt, classification, "CLASSIFICATION")
 
-    dt[, .(start_t = do.call(pmin, c(na.rm = TRUE, .SD)),
-           end_t = do.call(pmax, c(na.rm = TRUE, .SD))),
+    dt[, ":="(start_t = do.call(pmin, c(na.rm = TRUE, .SD)),
+              end_t = do.call(pmax, c(na.rm = TRUE, .SD))),
          .SDcols = TIMESTAMP_CLASSIFIERS,
-         by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE", "CLASSIFICATION")]
+         by = c(case_id(log), activity_id(log), "ACTIVITY_INSTANCE", classification)] -> dt
   }
 
   return(dt)
@@ -87,12 +95,12 @@ build_classifier <- function(dt, classification) {
   if(classification == "quartile") {
     dt[, delta := as.double(tb - ta, units = "days")]
 
-    dt[, CLASSIFICATION := fcase(delta <= quantile(delta, 0.25), 1L,
-                                 delta <= quantile(delta, 0.5), 2L,
-                                 delta <= quantile(delta, 0.75), 3L,
-                                 default = 4L),
+    dt[, (classification) := fcase(delta <= quantile(delta, 0.25), 1L,
+                                   delta <= quantile(delta, 0.5), 2L,
+                                   delta <= quantile(delta, 0.75), 3L,
+                                   default = 4L),
          by = "segment"][,
-         CLASSIFICATION := as.factor(CLASSIFICATION)]
+         (classification) := as.factor(get(classification))]
 
     # Old code => replaced by above
     # log <- log %>%

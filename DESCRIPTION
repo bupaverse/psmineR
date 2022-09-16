@@ -24,7 +24,7 @@ Imports:
     shiny,
     plotly,
     miniUI,
-    lifecycle
+    stringi
 RoxygenNote: 7.2.1
 URL: https://www.bupar.net,
     https://github.com/bupaverse/psmineR,
