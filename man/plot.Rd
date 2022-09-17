@@ -3,12 +3,15 @@
 \name{plot}
 \alias{plot}
 \alias{plot.ps_aggregated}
+\alias{plot.ps_detailed}
 \title{Plot Methods}
 \usage{
 \method{plot}{ps_aggregated}(x, ...)
+
+\method{plot}{ps_detailed}(x, ...)
 }
 \arguments{
-\item{x}{Object of class \code{ps_aggregated} or \code{ps_detailed}.}
+\item{x}{Object of class \code{\link[=ps_aggregated]{ps_aggregated()}} or \code{\link[=ps_detailed]{ps_detailed()}}.}
 
 \item{...}{Additional variables to pass further.}
 }
@@ -16,5 +19,5 @@
 A \code{\link{ggplot2}} object, which can be customised further.
 }
 \description{
-Visualize metric
+Visualize performance spectrum.
 }

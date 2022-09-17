@@ -18,5 +18,7 @@ A ggplot2 or plotly object describing the detailed performance spectrum
 Construct the detailed performance spectrum in an interactive Shiny gadget
 }
 \examples{
+\dontrun{
 iperformance_detailed(sepsis, TRUE)
+}
 }

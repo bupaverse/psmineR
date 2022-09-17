@@ -130,3 +130,56 @@ bench::mark(
 #3 seq_len     696.6us  946.2us     1019.     141KB     3.07   997     3   978.18ms <NULL> <Rprofmem [110 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
 #4 rleid        1.09ms   1.48ms      642.     158KB     2.58   996     4      1.55s <NULL> <Rprofmem [114 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
 #5 row_number   7.77ms   8.69ms      111.     296KB     2.49   978    22      8.83s <NULL> <Rprofmem [262 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
+
+
+x <- data.table(X = sample.int(10, 10000, replace = TRUE),
+                Y = sample.int(10000, 10000, replace = TRUE))
+y <- copy(x)
+z <- copy(x)
+v <- copy(x)
+w <- copy(x)
+
+# fifelse is (as expected) fastest
+bench::mark(
+  ifelse = x[, Z := ifelse(X == 5, 1, 0)],
+  if_else = y[, Z := if_else(X == 5, 1, 0)],
+  fifelse = z[, Z := fifelse(X == 5, 1, 0)],
+  filter = {w[X == 5, Z := 1]
+            w[X != 5, Z := 0]},
+  iterations = 1000,
+  check = FALSE
+)
+
+# A tibble: 4 x 13
+#expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result memory              time               gc
+#<bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list> <list>              <list>             <list>
+#1 ifelse      614.8us   1.14ms      834.     580KB    1.67    998     2       1.2s <NULL> <Rprofmem [17 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
+#2 if_else     651.4us 897.65us      998.     658KB    2.00    998     2   999.62ms <NULL> <Rprofmem [19 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
+#3 fifelse       471us  661.8us     1389.     150KB    0      1000     0   720.16ms <NULL> <Rprofmem [7 x 3]>  <bench_tm [1,000]> <tibble [1,000 x 3]>
+#4 filter       2.37ms   2.61ms      334.     454KB    0.669   998     2      2.99s <NULL> <Rprofmem [26 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
+
+x <- data.table(X = stri_rand_strings(10000, 2, "[A-Z]"),
+                Y = sample.int(10000, 10000, replace = TRUE))
+
+# which_chin is fastest (and much faster than %in%!)
+bench::mark(
+  filter = x %>% filter(X %in% c("AA", "BB")),
+  .in = x[X %in% c("AA", "BB"),],
+  chin = x[X %chin% c("AA", "BB"),],
+  or = x[X == "AA" | X == "BB",],
+  which_in = x[which(X %in% c("AA", "BB")),],
+  which_chin = x[which(X %chin% c("AA", "BB")),],
+  which_or = x[which(X == "AA" | X == "BB"),],
+  iterations = 1000,
+  check = FALSE
+)
+# A tibble: 7 x 13
+#expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result memory              time               gc
+#<bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list> <list>              <list>             <list>
+#1 filter       6.86ms    7.6ms      125.   277.9KB     3.86   970    30      7.77s <NULL> <Rprofmem [21 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
+#2 .in          1.36ms   1.54ms      618.    89.9KB     3.10   995     5      1.61s <NULL> <Rprofmem [18 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
+#3 chin         1.33ms   1.54ms      623.    89.9KB     3.76   994     6       1.6s <NULL> <Rprofmem [18 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
+#4 or            226us 278.15us     3259.   173.5KB    19.7    994     6      305ms <NULL> <Rprofmem [10 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
+#5 which_in      298us  360.4us     2565.   212.6KB    20.7    992     8    386.8ms <NULL> <Rprofmem [10 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>
+#6 which_chin  212.1us  263.6us     3455.    95.3KB    10.4    997     3   288.59ms <NULL> <Rprofmem [8 x 3]>  <bench_tm [1,000]> <tibble [1,000 x 3]>
+#7 which_or    236.1us  297.1us     3172.   173.5KB    19.1    994     6   313.39ms <NULL> <Rprofmem [10 x 3]> <bench_tm [1,000]> <tibble [1,000 x 3]>

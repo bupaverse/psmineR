@@ -57,13 +57,16 @@ If left \code{\link{NULL}}, 30 bins are selected automatically.}
 A \code{\link{ggplot2}} object describing the aggregated performance spectrum.
 }
 \description{
-Plots the aggregated performance spectrum.
+Plots the aggregated performance spectrum. The performance spectrum describes the event data in terms of segments, i.e.,
+pairs of related process steps. The performance of each segment is measured and plotted for any occurrences of this segment
+over time and can be classified, e.g., regarding the overall population. The aggregated performance spectrum visualises
+the amount of cases of particular performance over time (Denisov \emph{et al.}, 2018). See \strong{References} for more details.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{ps_aggregated(log)}: Calculate aggregated performance spectrum for a \code{\link[bupaR:log]{log}}.
+\item \code{ps_aggregated(log)}: Plot aggregated performance spectrum for a \code{\link[bupaR:log]{log}}.
 
-\item \code{ps_aggregated(grouped_log)}: Calculate aggregated performance spectrum for a \code{\link[bupaR:grouped_log]{grouped_log}}.
+\item \code{ps_aggregated(grouped_log)}: Plot aggregated performance spectrum for a \code{\link[bupaR:grouped_log]{grouped_log}}.
 
 }}
 \examples{
@@ -76,4 +79,12 @@ sepsis \%>\%
                grouping = "start",
                bins = 15)
 
+}
+\references{
+Denisov, V., Fahland, D., & van der Aalst, W. M. P. (2018). Unbiased, Fine-Grained Description of Processes Performance from Event Data.
+In M. Weske, M. Montali, I. Weber, & J. vom Brocke (Eds.), Proceedings of the 16th International Conference on Business Process Management
+(Vol. 11080, pp. 139–157). Springer International Publishing. \url{https://doi.org/10.1007/978-3-319-98648-7_9}
+}
+\seealso{
+\code{\link[=ps_detailed]{ps_detailed()}}
 }

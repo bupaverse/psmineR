@@ -145,7 +145,7 @@ test_that("test ps_aggregated on grouped_eventlog", {
   expect_s3_class(ps, "ggplot")
 
   # 'fill' of ggplot should be set to grouping var ("resource")
-  expect_equal(ps$label$fill, "resource")
+  expect_equal(rlang::as_label(ps$mapping$fill), "resource")
 })
 
 
@@ -179,5 +179,5 @@ test_that("test ps_aggregated on grouped_activitylog", {
   expect_s3_class(ps, "ggplot")
 
   # 'fill' of ggplot should be set to grouping var ("resource")
-  expect_equal(ps$label$fill, "resource")
+  expect_equal(rlang::as_label(ps$mapping$fill), "resource")
 })

@@ -1,43 +1,99 @@
-#' Construct the detailed performance spectrum in the plot viewer
+#' @title Detailed Performance Spectrum
 #'
-#' @param eventlog The Event Log object on which you want to mine the performance spectrum
-#' @param segment_coverage The percentage of cases in which each segment must be present in order to be visualised in the spectrum. Defaults to 0.2 (20%). Ignored if n_segments is specified.
-#' @param n_segments Alternative to segments_coverage, Visualise only the top n segments in terms of frequency.
-#' @param classification_attribute The variable defining the color legend. If \code{NULL} or \code{quartile}, a quartile variable dividing the durations of the segments in quartiles is calculated
-#' @return A ggplot2 object describing the detailed performance spectrum
+#' @description
+#' Plots the detailed performance spectrum. The performance spectrum describes the event data in terms of segments, i.e.,
+#' pairs of related process steps. The performance of each segment is measured and plotted for any occurrences of this segment
+#' over time and can be classified, e.g., regarding the overall population. The detailed performance spectrum visualises
+#' variability of durations in a segment across cases and time (Denisov _et al._, 2018). See **References** for more details.
+#'
+#' @inherit ps_aggregated params references
+#'
+#' @return A [`ggplot2`] object describing the detailed performance spectrum.
+#'
+#' @seealso [`ps_aggregated()`]
+#'
 #' @examples
-#' performance_detailed(eventlog = sepsis, segments_coverage = 0.2)
+#' library(psmineR)
+#' library(eventdataR)
+#'
+#' sepsis %>%
+#'  ps_detailed(segment_coverage = 0.2,
+#'              classification = "quartile")
 #'
 #' @export
-
-ps_detailed <- function(eventlog, segment_coverage, n_segments, classification_attribute) {
+ps_detailed <- function(log,
+                        segment_coverage,
+                        n_segments,
+                        classification = NULL) {
   UseMethod("ps_detailed")
 }
 
+#' @describeIn ps_detailed Plot detailed performance spectrum for a [`log`][`bupaR::log`].
 #' @export
+ps_detailed.log <- function(log,
+                            segment_coverage,
+                            n_segments,
+                            classification = NULL) {
 
-ps_detailed.eventlog <- function(eventlog,
-                                 segment_coverage = 0.2,
-                                 n_segments = NULL,
-                                 classification_attribute = NULL) {
+  if (is_missing(segment_coverage) && is_missing(n_segments)) {
+    segment_coverage <- 0.2
+  } else if (!is_missing(segment_coverage) && is_missing(n_segments)) {
+    if (!is.numeric(segment_coverage) || is.na(segment_coverage) || segment_coverage < 0 || segment_coverage > 1) {
+      abort("`segment_coverage` must be a number between 0 and 1.")
+    }
+  } else if (!is_missing(n_segments) && is_missing(segment_coverage)) {
+    if (!rlang::is_integerish(n_segments, n = 1) || is.na(n_segments) || n_segments < 0) {
+      abort("`n_segments` must be an integer number larger than 0.")
+    }
+  } else {
+    abort("Must supply `segment_coverage` or `n_segments`, but not both.")
+  }
 
+  n_segments <- maybe_missing(n_segments, NULL)
 
-  if(is.null(classification_attribute)) classification_attribute <- "quartile"
+  if (is.null(classification)) {
+    classification <- "quartile"
+  } else if (classification != "quartile" && !(classification %in% colnames(log))) {
+    abort(glue("Invalid `classification`: \"{classification}\" is not present in log."))
+  }
 
-  log <- eventlog %>%
-    construct_segments(classification_attribute) %>%
-    build_classifier(classification_attribute) %>%
-    filter_segments(segment_coverage, n_segments, mapping(eventlog)) %>%
-    order_segments(mapping(eventlog)) %>%
+  seg <- get_segments(log, segment_coverage, n_segments, classification)
+
   # Transform to long format to construct the detailed performance spectrum
-    gather(key, x, ta, tb) %>%
-    mutate(y = if_else(key == "ta", 1, 0)) %>%
-    filter(key %in% c("ta", "tb"))
+  melt(seg,
+       measure.vars = c("ta", "tb"),
+       variable.name = "key",
+       variable.factor = FALSE,
+       value.name = "x",
+       value.factor = FALSE) -> seg
 
-  #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
+  seg[which(key %chin% c("ta", "tb")),
+      y := fifelse(key == "ta", 1L, 0L)]
+  # seg %>%
+  #   gather(key, x, ta, tb) %>%
+  #   mutate(y = if_else(key == "ta", 1, 0)) %>%
+  #   filter(key %in% c("ta", "tb")) -> seg
+
+  class(seg) <- c("ps_detailed", class(seg))
 
   # Create the plot
-  log %>%
-    plot_detailed(classification_attribute, mapping(eventlog))
+  seg %>%
+    plot(classification, case_id(log))
+}
 
+#' @describeIn ps_detailed Plot detailed performance spectrum for a [`grouped_log`][`bupaR::grouped_log`].
+#' @export
+ps_detailed.grouped_log <- function(log,
+                                    segment_coverage,
+                                    n_segments,
+                                    classification = NULL) {
+
+  if (is.null(classification)) {
+    classification <- as.character(groups(log)[[1L]])
+  }
+
+  ps_detailed.log(ungroup_eventlog(log),
+                  maybe_missing(segment_coverage),
+                  maybe_missing(n_segments),
+                  classification)
 }

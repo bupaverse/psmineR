@@ -22,11 +22,6 @@ construct_segments <- function(log, classification) {
            tb = shift(start_t, n = 1L, type = "lead")),
          by = by_case] -> dt
   } else {
-    #cols <- c(eval(case_id(log)), "ACTIVITY", "ACTIVITY_INSTANCE", "start_t", "end_t", eval(classification))
-    col <- as.name(classification)
-    #dt[, ..cols][, ":="(yb = shift(ACTIVITY, n = 1L, type = "lead"),
-    #                 tb = shift(start_t, n = 1L, type = "lead")),
-    #     by = by_case] -> dt
     dt[, .(ACTIVITY,
            ACTIVITY_INSTANCE,
            start_t,

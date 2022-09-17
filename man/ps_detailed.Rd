@@ -2,26 +2,61 @@
 % Please edit documentation in R/ps_detailed.R
 \name{ps_detailed}
 \alias{ps_detailed}
-\title{Construct the detailed performance spectrum in the plot viewer}
+\alias{ps_detailed.log}
+\alias{ps_detailed.grouped_log}
+\title{Detailed Performance Spectrum}
 \usage{
-ps_detailed(eventlog, segment_coverage, n_segments, classification_attribute)
+ps_detailed(log, segment_coverage, n_segments, classification = NULL)
+
+\method{ps_detailed}{log}(log, segment_coverage, n_segments, classification = NULL)
+
+\method{ps_detailed}{grouped_log}(log, segment_coverage, n_segments, classification = NULL)
 }
 \arguments{
-\item{eventlog}{The Event Log object on which you want to mine the performance spectrum}
+\item{log}{\code{\link[bupaR:log]{log}}: Object of class \code{\link[bupaR:log]{log}} or derivatives (\code{\link[bupaR:grouped_log]{grouped_log}},
+\code{\link[bupaR:eventlog]{eventlog}}, \code{\link[bupaR:activitylog]{activitylog}}, etc.).}
 
-\item{segment_coverage}{The percentage of cases in which each segment must be present in order to be visualised in the spectrum. Defaults to 0.2 (20\%). Ignored if n_segments is specified.}
+\item{segment_coverage, n_segments}{\code{\link{numeric}}: Provide either \code{segment_coverage} or \code{n_segments}. If neither is
+provided, \code{segment_coverage = 0.2} will be used.\cr
+\code{segment_coverage}: The percentage of cases (default \code{0.2}) in which each segment must be present to be visualised in the spectrum.
+Ignored if \code{n_segments} is specified.\cr
+\code{n_segments}: Visualise only the top \code{n} segments based on frequency.}
 
-\item{n_segments}{Alternative to segments_coverage, Visualise only the top n segments in terms of frequency.}
-
-\item{classification_attribute}{The variable defining the color legend. If \code{NULL} or \code{quartile}, a quartile variable dividing the durations of the segments in quartiles is calculated}
+\item{classification}{\code{\link{character}} (default \code{\link{NULL}}): The variable defining the colour legend. This variable should be present in \code{log}.\cr
+If \code{\link{NULL}} (default) when \code{log} is a \code{\link[bupaR:grouped_log]{grouped_log}}, the first grouping variable will be used as \code{classification}.\cr
+If \code{\link{NULL}} (default) or \code{"quartile"} when \code{log} is an \code{\link[bupaR:eventlog]{eventlog}} or \code{\link[bupaR:activitylog]{activitylog}},
+a quartile variable dividing the durations of the segments in quartiles is calculated.}
 }
 \value{
-A ggplot2 object describing the detailed performance spectrum
+A \code{\link{ggplot2}} object describing the detailed performance spectrum.
 }
 \description{
-Construct the detailed performance spectrum in the plot viewer
+Plots the detailed performance spectrum. The performance spectrum describes the event data in terms of segments, i.e.,
+pairs of related process steps. The performance of each segment is measured and plotted for any occurrences of this segment
+over time and can be classified, e.g., regarding the overall population. The detailed performance spectrum visualises
+variability of durations in a segment across cases and time (Denisov \emph{et al.}, 2018). See \strong{References} for more details.
 }
-\examples{
-performance_detailed(eventlog = sepsis, segments_coverage = 0.2)
+\section{Methods (by class)}{
+\itemize{
+\item \code{ps_detailed(log)}: Plot detailed performance spectrum for a \code{\link[bupaR:log]{log}}.
 
+\item \code{ps_detailed(grouped_log)}: Plot detailed performance spectrum for a \code{\link[bupaR:grouped_log]{grouped_log}}.
+
+}}
+\examples{
+library(psmineR)
+library(eventdataR)
+
+sepsis \%>\%
+ ps_detailed(segment_coverage = 0.2,
+             classification = "quartile")
+
+}
+\references{
+Denisov, V., Fahland, D., & van der Aalst, W. M. P. (2018). Unbiased, Fine-Grained Description of Processes Performance from Event Data.
+In M. Weske, M. Montali, I. Weber, & J. vom Brocke (Eds.), Proceedings of the 16th International Conference on Business Process Management
+(Vol. 11080, pp. 139–157). Springer International Publishing. \url{https://doi.org/10.1007/978-3-319-98648-7_9}
+}
+\seealso{
+\code{\link[=ps_aggregated]{ps_aggregated()}}
 }

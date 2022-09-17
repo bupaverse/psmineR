@@ -4,7 +4,9 @@
 #' @param plotly True if you desire a ggplotly object as visualisation instead of a ggplot
 #' @return A ggplot2 or plotly object describing the aggregated performance spectrum
 #' @examples
+#' \dontrun{
 #' iperformance_aggregated(sepsis, TRUE)
+#' }
 #' @export
 
 iperformance_aggregated <- function(eventlog, plotly = FALSE) {

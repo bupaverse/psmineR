@@ -18,5 +18,7 @@ A ggplot2 or plotly object describing the aggregated performance spectrum
 Construct the aggregated performance spectrum in an interactive Shiny gadget
 }
 \examples{
+\dontrun{
 iperformance_aggregated(sepsis, TRUE)
+}
 }

@@ -1,6 +1,10 @@
 #' @title Aggregated Performance Spectrum
 #'
-#' @description Plots the aggregated performance spectrum.
+#' @description
+#' Plots the aggregated performance spectrum. The performance spectrum describes the event data in terms of segments, i.e.,
+#' pairs of related process steps. The performance of each segment is measured and plotted for any occurrences of this segment
+#' over time and can be classified, e.g., regarding the overall population. The aggregated performance spectrum visualises
+#' the amount of cases of particular performance over time (Denisov _et al._, 2018). See **References** for more details.
 #'
 #' @param log [`log`][`bupaR::log`]: Object of class [`log`][`bupaR::log`] or derivatives ([`grouped_log`][`bupaR::grouped_log`],
 #' [`eventlog`][`bupaR::eventlog`], [`activitylog`][`bupaR::activitylog`], etc.).
@@ -18,6 +22,13 @@
 #' If left [`NULL`], 30 bins are selected automatically.
 #'
 #' @return A [`ggplot2`] object describing the aggregated performance spectrum.
+#'
+#' @seealso [`ps_detailed()`]
+#'
+#' @references
+#' Denisov, V., Fahland, D., & van der Aalst, W. M. P. (2018). Unbiased, Fine-Grained Description of Processes Performance from Event Data.
+#' In M. Weske, M. Montali, I. Weber, & J. vom Brocke (Eds.), Proceedings of the 16th International Conference on Business Process Management
+#' (Vol. 11080, pp. 139–157). Springer International Publishing. \url{https://doi.org/10.1007/978-3-319-98648-7_9}
 #'
 #' @examples
 #' library(psmineR)
@@ -39,7 +50,7 @@ ps_aggregated <- function(log,
   UseMethod("ps_aggregated")
 }
 
-#' @describeIn ps_aggregated Calculate aggregated performance spectrum for a [`log`][`bupaR::log`].
+#' @describeIn ps_aggregated Plot aggregated performance spectrum for a [`log`][`bupaR::log`].
 #' @export
 ps_aggregated.log <- function(log,
                               segment_coverage,
@@ -72,11 +83,7 @@ ps_aggregated.log <- function(log,
     abort(glue("Invalid `classification`: \"{classification}\" is not present in log."))
   }
 
-  log %>%
-    construct_segments(classification) %>%
-    build_classifier(classification) %>%
-    filter_segments(log = log, segment_coverage = segment_coverage, n_segments = n_segments) %>%
-    order_segments(log) -> seg
+  seg <- get_segments(log, segment_coverage, n_segments, classification)
 
   class(seg) <- c("ps_aggregated", class(seg))
 
@@ -93,7 +100,7 @@ ps_aggregated.log <- function(log,
     plot(classification, grouping, bins)
 }
 
-#' @describeIn ps_aggregated Calculate aggregated performance spectrum for a [`grouped_log`][`bupaR::grouped_log`].
+#' @describeIn ps_aggregated Plot aggregated performance spectrum for a [`grouped_log`][`bupaR::grouped_log`].
 #' @export
 ps_aggregated.grouped_log <- function(log,
                                       segment_coverage,
@@ -112,4 +119,16 @@ ps_aggregated.grouped_log <- function(log,
                     classification,
                     grouping,
                     bins)
+}
+
+
+get_segments <- function(log, segment_coverage, n_segments, classification) {
+
+  log %>%
+    construct_segments(classification) %>%
+    build_classifier(classification) %>%
+    filter_segments(log = log, segment_coverage = segment_coverage, n_segments = n_segments) %>%
+    order_segments(log) -> seg
+
+  return(seg)
 }

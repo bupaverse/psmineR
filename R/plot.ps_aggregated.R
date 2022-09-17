@@ -4,7 +4,7 @@ plot_ps_aggregated <- function(x, classification, grouping, bins) {
   if(grouping == "start") plot_x <- "ta" else plot_x <- "tb"
 
   x %>%
-    ggplot(aes_(as.name(plot_x), fill = as.name(classification))) +
+    ggplot(aes_(sym(plot_x), fill = sym(classification))) +
       geom_histogram(bins = bins) +
       facet_grid(fct_reorder(segment, seg_order) ~ ., switch = "y", scales = "free_y") +
       theme_bw() +
