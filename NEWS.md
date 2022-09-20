@@ -1,9 +1,3 @@
-# psmineR 0.2.0 (dev)
+# psmineR 0.1.0
 
-## Features
-
-## Bug Fixes
-
-## Other
-
-* Added a `NEWS.md` file to track changes to the package.
+Initial release of **psmineR**.

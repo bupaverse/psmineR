@@ -2,7 +2,7 @@ Package: psmineR
 Type: Package
 Title: Performance Spectrum Miner For Event Data
 Version: 0.1.0
-Date: 2020-11-09
+Date: 2022-10-01
 Authors@R: c(person("Greg","Van Houdt", email = "greg.vanhoudt@uhasselt.be", role = "aut"),
              person("Gert","Janssenswillen",email = "gert.janssenswillen@uhasselt.be", role = c("ctb","cre")),
              person("Gerard","van Hulzen",email = "gerard.vanhulzen@uhasselt.be", role = c("ctb")))
@@ -13,17 +13,15 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-    bupaR (>= 0.5.0),
+    bupaR (>= 0.5.1),
     dplyr,
     data.table,
     forcats,
     ggplot2,
     tidyr,
-    rlang,
+    rlang (>= 1.0.0),
+    cli (>= 3.2.0),
     glue,
-    shiny,
-    plotly,
-    miniUI,
     stringi
 RoxygenNote: 7.2.1
 URL: https://www.bupar.net,
@@ -34,7 +32,7 @@ Suggests:
     eventdataR,
     rmarkdown,
     covr,
-    testthat (>= 3.0.0)
+    testthat (>= 3.1.3)
 VignetteBuilder: knitr
 BugReports: https://github.com/bupaverse/psmineR/issues
 Roxygen: list(markdown = TRUE)

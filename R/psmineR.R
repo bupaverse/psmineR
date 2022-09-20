@@ -9,14 +9,12 @@
 #' @import dplyr
 #' @import ggplot2
 #' @import tidyr
-#' @import shiny
-#' @rawNamespace import(plotly, except = last_plot)
-#' @import miniUI
 #' @importFrom dplyr %>%
 #' @importFrom forcats fct_reorder
 #' @importFrom glue glue
 #' @importFrom data.table data.table := .I .SD .N uniqueN setorderv setkeyv setnames shift fcase rowidv fifelse melt %chin%
-#' @importFrom rlang is_missing maybe_missing abort warn sym
+#' @importFrom rlang arg_match is_missing maybe_missing is_integerish sym caller_env caller_arg
+#' @importFrom cli cli_abort
 #' @importFrom stats median na.omit quantile
 ## usethis namespace: end
 

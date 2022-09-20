@@ -59,31 +59,14 @@ ps_aggregated.log <- function(log,
                               grouping = c("start", "complete"),
                               bins = NULL) {
 
-  grouping <- rlang::arg_match(grouping)
+  grouping <- arg_match(grouping)
 
-  if (is_missing(segment_coverage) && is_missing(n_segments)) {
-    segment_coverage <- 0.2
-  } else if (!is_missing(segment_coverage) && is_missing(n_segments)) {
-    if (!is.numeric(segment_coverage) || is.na(segment_coverage) || segment_coverage < 0 || segment_coverage > 1) {
-      abort("`segment_coverage` must be a number between 0 and 1.")
-    }
-  } else if (!is_missing(n_segments) && is_missing(segment_coverage)) {
-    if (!rlang::is_integerish(n_segments, n = 1) || is.na(n_segments) || n_segments < 0) {
-      abort("`n_segments` must be an integer number larger than 0.")
-    }
-  } else {
-    abort("Must supply `segment_coverage` or `n_segments`, but not both.")
-  }
+  segment_coverage <- check_segment_args(maybe_missing(segment_coverage),
+                                         maybe_missing(n_segments))
 
-  n_segments <- maybe_missing(n_segments, NULL)
+  classification <- check_classification_arg(log, classification)
 
-  if (is.null(classification)) {
-    classification <- "quartile"
-  } else if (classification != "quartile" && !(classification %in% colnames(log))) {
-    abort(glue("Invalid `classification`: \"{classification}\" is not present in log."))
-  }
-
-  seg <- get_segments(log, segment_coverage, n_segments, classification)
+  seg <- get_segments(log, segment_coverage, maybe_missing(n_segments, NULL), classification)
 
   class(seg) <- c("ps_aggregated", class(seg))
 
@@ -131,4 +114,41 @@ get_segments <- function(log, segment_coverage, n_segments, classification) {
     order_segments(log) -> seg
 
   return(seg)
+}
+
+check_segment_args <- function(segment_coverage, n_segments, call = caller_env()) {
+
+  if (is_missing(segment_coverage) && is_missing(n_segments)) {
+    return(0.2)
+  } else if (!is_missing(segment_coverage) && is_missing(n_segments)) {
+    if (!is.numeric(segment_coverage) || is.na(segment_coverage) || segment_coverage < 0 || segment_coverage > 1) {
+      cli_abort(c("{.arg segment_coverage} must be a {.cls numeric} between 0 and 1.",
+                  "x" = "You supplied a {.cls {class(segment_coverage)}}: {segment_coverage}"),
+                call = call)
+    } else {
+      return(segment_coverage)
+    }
+  } else if (!is_missing(n_segments) && is_missing(segment_coverage)) {
+    if (!is_integerish(n_segments, n = 1) || is.na(n_segments) || n_segments < 0) {
+      cli_abort(c("{.arg n_segments} must be an interger-like {.cls numeric} larger than 0.",
+                  "x" = "You supplied a {.cls {class(n_segments)}}: {n_segments}"),
+                call = call)
+    }
+  } else {
+    cli_abort("Must supply {.arg segment_coverage} or {.arg n_segments}, but not both.",
+              call = call)
+  }
+}
+
+check_classification_arg <- function(log, classification, arg = caller_arg(classification), call = caller_env()) {
+
+  if (is.null(classification)) {
+    return("quartile")
+  } else if (classification != "quartile" && !(classification %in% colnames(log))) {
+    cli_abort(c("Invalid {.arg {arg}}.",
+                "x" = "\"{classification}\" is not present in log."),
+              call = call)
+  }
+
+  return(classification)
 }

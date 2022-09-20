@@ -35,29 +35,12 @@ ps_detailed.log <- function(log,
                             n_segments,
                             classification = NULL) {
 
-  if (is_missing(segment_coverage) && is_missing(n_segments)) {
-    segment_coverage <- 0.2
-  } else if (!is_missing(segment_coverage) && is_missing(n_segments)) {
-    if (!is.numeric(segment_coverage) || is.na(segment_coverage) || segment_coverage < 0 || segment_coverage > 1) {
-      abort("`segment_coverage` must be a number between 0 and 1.")
-    }
-  } else if (!is_missing(n_segments) && is_missing(segment_coverage)) {
-    if (!rlang::is_integerish(n_segments, n = 1) || is.na(n_segments) || n_segments < 0) {
-      abort("`n_segments` must be an integer number larger than 0.")
-    }
-  } else {
-    abort("Must supply `segment_coverage` or `n_segments`, but not both.")
-  }
+  segment_coverage <- check_segment_args(maybe_missing(segment_coverage),
+                                         maybe_missing(n_segments))
 
-  n_segments <- maybe_missing(n_segments, NULL)
+  classification <- check_classification_arg(log, classification)
 
-  if (is.null(classification)) {
-    classification <- "quartile"
-  } else if (classification != "quartile" && !(classification %in% colnames(log))) {
-    abort(glue("Invalid `classification`: \"{classification}\" is not present in log."))
-  }
-
-  seg <- get_segments(log, segment_coverage, n_segments, classification)
+  seg <- get_segments(log, segment_coverage, maybe_missing(n_segments, NULL), classification)
 
   # Transform to long format to construct the detailed performance spectrum
   melt(seg,

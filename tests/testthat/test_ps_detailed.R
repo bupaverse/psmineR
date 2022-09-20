@@ -5,8 +5,13 @@ test_that("test ps_detailed on eventlog", {
 
   load("./testdata/patients.rda")
 
-  # No errors with default params
+  # No errors nor warnings with default params
   expect_error(
+    ps <- patients %>%
+      ps_detailed(),
+    NA
+  )
+  expect_warning(
     ps <- patients %>%
       ps_detailed(),
     NA
@@ -42,22 +47,24 @@ test_that("test ps_detailed on eventlog fails when 'segment_coverage' != [0,1]",
 
   load("./testdata/patients.rda")
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_detailed(segment_coverage = -0.1),
-    "`segment_coverage` must be a number between 0 and 1."
+      ps_detailed(segment_coverage = -0.1)
   )
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_detailed(segment_coverage = 2),
-    "`segment_coverage` must be a number between 0 and 1."
+      ps_detailed(segment_coverage = -0.1)
   )
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_detailed(segment_coverage = "0.5"),
-    "`segment_coverage` must be a number between 0 and 1."
+      ps_detailed(segment_coverage = 2)
+  )
+
+  expect_snapshot_error(
+    patients %>%
+      ps_detailed(segment_coverage = "0.5")
   )
 })
 
@@ -65,22 +72,19 @@ test_that("test ps_detailed on eventlog fails when 'n_segments' < 0 or not an in
 
   load("./testdata/patients.rda")
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_detailed(n_segments = -1),
-    "`n_segments` must be an integer number larger than 0."
+      ps_detailed(n_segments = -1)
   )
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_detailed(n_segments = 2.5),
-    "`n_segments` must be an integer number larger than 0."
+      ps_detailed(n_segments = 2.5)
   )
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_detailed(n_segments = "5"),
-    "`n_segments` must be an integer number larger than 0."
+      ps_detailed(n_segments = "5")
   )
 })
 
@@ -88,10 +92,9 @@ test_that("test ps_detailed on eventlog fails when both 'segment_coverage' and '
 
   load("./testdata/patients.rda")
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_detailed(segment_coverage = 0.2, n_segments = 5),
-    "Must supply `segment_coverage` or `n_segments`, but not both."
+      ps_detailed(segment_coverage = 0.2, n_segments = 5)
   )
 })
 
@@ -99,10 +102,9 @@ test_that("test ps_detailed on eventlog fails on invalid classification", {
 
   load("./testdata/patients.rda")
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_detailed(classification = "var"),
-    "Invalid `classification`: \"var\" is not present in log."
+      ps_detailed(classification = "var")
   )
 })
 
@@ -131,8 +133,13 @@ test_that("test ps_detailed on activitylog", {
 
   load("./testdata/patients_act.rda")
 
-  # No errors with default params
+  # No errors nor warnings with default params
   expect_error(
+    ps <- patients_act %>%
+      ps_detailed(),
+    NA
+  )
+  expect_warning(
     ps <- patients_act %>%
       ps_detailed(),
     NA
@@ -144,8 +151,14 @@ test_that("test ps_detailed on grouped_activitylog", {
 
   load("./testdata/patients_act.rda")
 
-  # No errors with default params
+  # No errors nor warnings with default params
   expect_error(
+    ps <- patients_act %>%
+      group_by_resource() %>%
+      ps_detailed(),
+    NA
+  )
+  expect_warning(
     ps <- patients_act %>%
       group_by_resource() %>%
       ps_detailed(),

@@ -2,3 +2,16 @@ url: https://bupaverse.github.io/psmineR/
 template:
   bootstrap: 5
 
+home:
+  links:
+    - text: Getting started
+      href: https://bupar.net/getting_started.html
+
+news:
+  one_page: true
+  cran_dates: true
+  releases:
+    - text: "psmineR 0.1.0"
+
+development:
+  mode: auto

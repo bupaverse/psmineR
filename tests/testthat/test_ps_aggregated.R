@@ -53,8 +53,13 @@ test_that("test ps_aggregated on eventlog", {
   )
   expect_s3_class(ps, "ggplot")
 
-  # No errors with 'bins' param
+  # No errors nor warnings with 'bins' param
   expect_error(
+    ps <- patients %>%
+      ps_aggregated(bins = 20),
+    NA
+  )
+  expect_warning(
     ps <- patients %>%
       ps_aggregated(bins = 20),
     NA
@@ -66,22 +71,19 @@ test_that("test ps_aggregated on eventlog fails when 'segment_coverage' != [0,1]
 
   load("./testdata/patients.rda")
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_aggregated(segment_coverage = -0.1),
-    "`segment_coverage` must be a number between 0 and 1."
+      ps_aggregated(segment_coverage = -0.1)
   )
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_aggregated(segment_coverage = 2),
-    "`segment_coverage` must be a number between 0 and 1."
+      ps_aggregated(segment_coverage = 2)
   )
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_aggregated(segment_coverage = "0.5"),
-    "`segment_coverage` must be a number between 0 and 1."
+      ps_aggregated(segment_coverage = "0.5")
   )
 })
 
@@ -89,22 +91,19 @@ test_that("test ps_aggregated on eventlog fails when 'n_segments' < 0 or not an 
 
   load("./testdata/patients.rda")
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_aggregated(n_segments = -1),
-    "`n_segments` must be an integer number larger than 0."
+      ps_aggregated(n_segments = -1)
   )
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_aggregated(n_segments = 2.5),
-    "`n_segments` must be an integer number larger than 0."
+      ps_aggregated(n_segments = 2.5)
   )
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_aggregated(n_segments = "5"),
-    "`n_segments` must be an integer number larger than 0."
+      ps_aggregated(n_segments = "5")
   )
 })
 
@@ -112,10 +111,9 @@ test_that("test ps_aggregated on eventlog fails when both 'segment_coverage' and
 
   load("./testdata/patients.rda")
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_aggregated(segment_coverage = 0.2, n_segments = 5),
-    "Must supply `segment_coverage` or `n_segments`, but not both."
+      ps_aggregated(segment_coverage = 0.2, n_segments = 5)
   )
 })
 
@@ -123,10 +121,9 @@ test_that("test ps_aggregated on eventlog fails on invalid classification", {
 
   load("./testdata/patients.rda")
 
-  expect_error(
+  expect_snapshot_error(
     patients %>%
-      ps_aggregated(classification = "var"),
-    "Invalid `classification`: \"var\" is not present in log."
+      ps_aggregated(classification = "var")
   )
 })
 
