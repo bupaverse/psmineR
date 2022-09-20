@@ -123,7 +123,7 @@ check_segment_args <- function(segment_coverage, n_segments, call = caller_env()
   } else if (!is_missing(segment_coverage) && is_missing(n_segments)) {
     if (!is.numeric(segment_coverage) || is.na(segment_coverage) || segment_coverage < 0 || segment_coverage > 1) {
       cli_abort(c("{.arg segment_coverage} must be a {.cls numeric} between 0 and 1.",
-                  "x" = "You supplied a {.cls {class(segment_coverage)}}: {segment_coverage}"),
+                  "x" = "You supplied a {.cls {class(segment_coverage)}}: {.val {segment_coverage}}"),
                 call = call)
     } else {
       return(segment_coverage)
@@ -131,7 +131,7 @@ check_segment_args <- function(segment_coverage, n_segments, call = caller_env()
   } else if (!is_missing(n_segments) && is_missing(segment_coverage)) {
     if (!is_integerish(n_segments, n = 1) || is.na(n_segments) || n_segments < 0) {
       cli_abort(c("{.arg n_segments} must be an interger-like {.cls numeric} larger than 0.",
-                  "x" = "You supplied a {.cls {class(n_segments)}}: {n_segments}"),
+                  "x" = "You supplied a {.cls {class(n_segments)}}: {.val {n_segments}}"),
                 call = call)
     }
   } else {
@@ -146,7 +146,7 @@ check_classification_arg <- function(log, classification, arg = caller_arg(class
     return("quartile")
   } else if (classification != "quartile" && !(classification %in% colnames(log))) {
     cli_abort(c("Invalid {.arg {arg}}.",
-                "x" = "\"{classification}\" is not present in log."),
+                "x" = "{.val {classification}} is not present in log."),
               call = call)
   }
 
