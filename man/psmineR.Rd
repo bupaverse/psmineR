@@ -3,7 +3,7 @@
 \docType{package}
 \name{psmineR}
 \alias{psmineR}
-\title{TBA}
+\title{psmineR}
 \description{
-TBA
+Performance Spectrum Miner For Event Data
 }

@@ -1,0 +1,9 @@
+^README\.Rmd$
+^codecov\.yml$
+^\.github$
+^\.idea$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^.*\.Rproj$
+^\.Rproj\.user$

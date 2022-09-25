@@ -23,6 +23,9 @@
 *.Rproj
 
 
+# IntelliJ files
+.idea/
+
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
@@ -40,3 +43,4 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+docs
