@@ -34,7 +34,10 @@ ps_detailed.log <- function(log,
                             segment_coverage,
                             n_segments,
                             classification = NULL) {
-
+  
+  key <- NULL
+  y <- NULL
+  
   segment_coverage <- check_segment_args(maybe_missing(segment_coverage),
                                          maybe_missing(n_segments))
 

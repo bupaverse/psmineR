@@ -1,6 +1,14 @@
 
 construct_segments <- function(log, classification) {
-
+  start_t <- NULL
+  end_t <- NULL
+  segment <- NULL
+  ACTIVITY <- NULL
+  ACTIVITY_INSTANCE <- NULL
+  ya <- NULL
+  yb <- NULL
+  
+  
   log %>%
     data.table() -> dt
 
@@ -44,7 +52,9 @@ construct_segments <- function(log, classification) {
 }
 
 construct_segments.eventlog <- function(log, classification, dt) {
-
+  
+  TIMESTAMP_CLASSIFIER <- NULL
+  
   setnames(dt, c(timestamp(log), activity_instance_id(log)), c("TIMESTAMP_CLASSIFIER", "ACTIVITY_INSTANCE"))
 
   if(classification == "quartile") {
@@ -63,7 +73,8 @@ construct_segments.eventlog <- function(log, classification, dt) {
 }
 
 construct_segments.activitylog <- function(log, classification, dt) {
-
+  ACTIVITY_INSTANCE <- NULL
+  
   TIMESTAMP_CLASSIFIERS <- get_col_index(dt, timestamps(log))
 
   dt[, ACTIVITY_INSTANCE := .I]
@@ -86,6 +97,9 @@ construct_segments.activitylog <- function(log, classification, dt) {
 
 # Needs the construct_segments data.table
 build_classifier <- function(dt, classification) {
+  delta <- NULL
+  ta <- NULL
+  tb <- NULL
 
   if(classification == "quartile") {
     dt[, delta := as.double(tb - ta, units = "days")]
@@ -153,7 +167,7 @@ filter_segments <- function(dt, log, segment_coverage = NULL, n_segments = NULL)
 
 # Needs the filter_segments data.table + original log for mapping vars
 order_segments <- function(dt, log) {
-
+  i <- NULL
   setorderv(dt, cols = "start_t")
   dt[, i := rowidv(dt, cols = case_id(log))][,
        .(seg_order = median(i)),

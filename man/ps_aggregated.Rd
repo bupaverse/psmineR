@@ -12,7 +12,7 @@ ps_aggregated(
   n_segments,
   classification = NULL,
   grouping = c("start", "complete"),
-  bins = NULL
+  bins = 30
 )
 
 \method{ps_aggregated}{log}(
@@ -21,7 +21,7 @@ ps_aggregated(
   n_segments,
   classification = NULL,
   grouping = c("start", "complete"),
-  bins = NULL
+  bins = 30
 )
 
 \method{ps_aggregated}{grouped_log}(
@@ -50,8 +50,7 @@ a quartile variable dividing the durations of the segments in quartiles is calcu
 
 \item{grouping}{\code{\link{character}} (default \code{"start"}): The timestamps, \code{"start"} or \code{"complete"}, which are binned in the histogram.}
 
-\item{bins}{\code{\link{numeric}} (default \code{\link{NULL}}): The number of bins in the aggregated performance spectrum.
-If left \code{\link{NULL}}, 30 bins are selected automatically.}
+\item{bins}{\code{\link{numeric}} (default \code{30}): The number of bins in the aggregated performance spectrum.}
 }
 \value{
 A \code{\link{ggplot2}} object describing the aggregated performance spectrum.

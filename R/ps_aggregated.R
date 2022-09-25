@@ -18,8 +18,7 @@
 #' If [`NULL`] (default) or `"quartile"` when `log` is an [`eventlog`][`bupaR::eventlog`] or [`activitylog`][`bupaR::activitylog`],
 #' a quartile variable dividing the durations of the segments in quartiles is calculated.
 #' @param grouping [`character`] (default `"start"`): The timestamps, `"start"` or `"complete"`, which are binned in the histogram.
-#' @param bins [`numeric`] (default [`NULL`]): The number of bins in the aggregated performance spectrum.
-#' If left [`NULL`], 30 bins are selected automatically.
+#' @param bins [`numeric`] (default `30`): The number of bins in the aggregated performance spectrum.
 #'
 #' @return A [`ggplot2`] object describing the aggregated performance spectrum.
 #'
@@ -46,7 +45,7 @@ ps_aggregated <- function(log,
                           n_segments,
                           classification = NULL,
                           grouping = c("start", "complete"),
-                          bins = NULL) {
+                          bins = 30) {
   UseMethod("ps_aggregated")
 }
 
@@ -57,7 +56,7 @@ ps_aggregated.log <- function(log,
                               n_segments,
                               classification = NULL,
                               grouping = c("start", "complete"),
-                              bins = NULL) {
+                              bins = 30) {
 
   grouping <- arg_match(grouping)
 
