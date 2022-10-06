@@ -1,5 +1,5 @@
 
-plot_ps_aggregated <- function(x, classification, grouping, bins) {
+plot_ps_aggregated <- function(x, classification, grouping, bins, scale) {
 
   if(grouping == "start") plot_x <- "ta" else plot_x <- "tb"
 
@@ -14,9 +14,16 @@ plot_ps_aggregated <- function(x, classification, grouping, bins) {
             panel.grid = element_blank(),
             panel.spacing.y = unit(0, "lines")) -> p
 
-  if(classification == "quartile") {
-    p <- p + scale_fill_brewer(palette = "Blues")
-  }
-
+  if(is.null(scale)) {
+    if(classification == "quartile") {
+      p <- p + scale_fill_brewer(palette = "Blues")
+    } else {
+      p <- p + scale_fill_discrete_bupaR()
+    } }
+  else {
+      p <- p + scale()
+    }
+  
+  
   return(p)
 }

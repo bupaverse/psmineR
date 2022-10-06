@@ -6,11 +6,29 @@
 \alias{ps_detailed.grouped_log}
 \title{Detailed Performance Spectrum}
 \usage{
-ps_detailed(log, segment_coverage, n_segments, classification = NULL)
+ps_detailed(
+  log,
+  segment_coverage,
+  n_segments,
+  classification = NULL,
+  scale = NULL
+)
 
-\method{ps_detailed}{log}(log, segment_coverage, n_segments, classification = NULL)
+\method{ps_detailed}{log}(
+  log,
+  segment_coverage,
+  n_segments,
+  classification = NULL,
+  scale = NULL
+)
 
-\method{ps_detailed}{grouped_log}(log, segment_coverage, n_segments, classification = NULL)
+\method{ps_detailed}{grouped_log}(
+  log,
+  segment_coverage,
+  n_segments,
+  classification = NULL,
+  scale = NULL
+)
 }
 \arguments{
 \item{log}{\code{\link[bupaR:log]{log}}: Object of class \code{\link[bupaR:log]{log}} or derivatives (\code{\link[bupaR:grouped_log]{grouped_log}},
@@ -26,6 +44,9 @@ Ignored if \code{n_segments} is specified.\cr
 If \code{\link{NULL}} (default) when \code{log} is a \code{\link[bupaR:grouped_log]{grouped_log}}, the first grouping variable will be used as \code{classification}.\cr
 If \code{\link{NULL}} (default) or \code{"quartile"} when \code{log} is an \code{\link[bupaR:eventlog]{eventlog}} or \code{\link[bupaR:activitylog]{activitylog}},
 a quartile variable dividing the durations of the segments in quartiles is calculated.}
+
+\item{scale}{\code{\link{ggplot2}} scale function (default \code{\link[bupaR:scale_fill_discrete_bupaR]{scale_color_discrete_bupaR}}):
+Set color scale. Defaults to \code{\link[bupaR:scale_fill_discrete_bupaR]{scale_color_discrete_bupaR}}.}
 }
 \value{
 A \code{\link{ggplot2}} object describing the detailed performance spectrum.
