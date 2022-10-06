@@ -5,7 +5,9 @@
 #' pairs of related process steps. The performance of each segment is measured and plotted for any occurrences of this segment
 #' over time and can be classified, e.g., regarding the overall population. The detailed performance spectrum visualises
 #' variability of durations in a segment across cases and time (Denisov _et al._, 2018). See **References** for more details.
-#'
+#' @param scale [`ggplot2`] scale function (default [`scale_color_discrete_bupaR`][`bupaR::scale_color_discrete_bupaR`]):
+#' Set color scale. Defaults to [`scale_color_discrete_bupaR`][`bupaR::scale_color_discrete_bupaR`]. 
+#' 
 #' @inherit ps_aggregated params references
 #'
 #' @return A [`ggplot2`] object describing the detailed performance spectrum.
@@ -24,7 +26,8 @@
 ps_detailed <- function(log,
                         segment_coverage,
                         n_segments,
-                        classification = NULL) {
+                        classification = NULL,
+                        scale = NULL) {
   UseMethod("ps_detailed")
 }
 
@@ -33,7 +36,8 @@ ps_detailed <- function(log,
 ps_detailed.log <- function(log,
                             segment_coverage,
                             n_segments,
-                            classification = NULL) {
+                            classification = NULL,
+                            scale = NULL) {
   
   key <- NULL
   y <- NULL
@@ -64,7 +68,7 @@ ps_detailed.log <- function(log,
 
   # Create the plot
   seg %>%
-    plot(classification, case_id(log))
+    plot(classification, case_id(log), scale = scale)
 }
 
 #' @describeIn ps_detailed Plot detailed performance spectrum for a [`grouped_log`][`bupaR::grouped_log`].
@@ -72,7 +76,8 @@ ps_detailed.log <- function(log,
 ps_detailed.grouped_log <- function(log,
                                     segment_coverage,
                                     n_segments,
-                                    classification = NULL) {
+                                    classification = NULL,
+                                    scale = NULL) {
 
   if (is.null(classification)) {
     classification <- as.character(groups(log)[[1L]])

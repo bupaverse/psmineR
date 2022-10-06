@@ -12,6 +12,7 @@ ps_aggregated(
   n_segments,
   classification = NULL,
   grouping = c("start", "complete"),
+  scale = NULL,
   bins = 30
 )
 
@@ -21,6 +22,7 @@ ps_aggregated(
   n_segments,
   classification = NULL,
   grouping = c("start", "complete"),
+  scale = NULL,
   bins = 30
 )
 
@@ -30,6 +32,7 @@ ps_aggregated(
   n_segments,
   classification = NULL,
   grouping = c("start", "complete"),
+  scale = NULL,
   bins = NULL
 )
 }
@@ -49,6 +52,9 @@ If \code{\link{NULL}} (default) or \code{"quartile"} when \code{log} is an \code
 a quartile variable dividing the durations of the segments in quartiles is calculated.}
 
 \item{grouping}{\code{\link{character}} (default \code{"start"}): The timestamps, \code{"start"} or \code{"complete"}, which are binned in the histogram.}
+
+\item{scale}{\code{\link{ggplot2}} scale function (default \code{\link[bupaR:scale_fill_discrete_bupaR]{scale_fill_discrete_bupaR}}):
+Set color scale. Defaults to \code{\link[bupaR:scale_fill_discrete_bupaR]{scale_fill_discrete_bupaR}}.}
 
 \item{bins}{\code{\link{numeric}} (default \code{30}): The number of bins in the aggregated performance spectrum.}
 }

@@ -2,7 +2,7 @@ Package: psmineR
 Type: Package
 Title: Performance Spectrum Miner For Event Data
 Version: 0.1.0
-Date: 2022-10-01
+Date: 2022-10-06
 Authors@R: c(person("Greg","Van Houdt", email = "greg.vanhoudt@uhasselt.be", role = "aut"),
              person("Gert","Janssenswillen",email = "gert.janssenswillen@uhasselt.be", role = c("ctb","cre")),
              person("Gerard","van Hulzen",email = "gerard.vanhulzen@uhasselt.be", role = c("ctb")))

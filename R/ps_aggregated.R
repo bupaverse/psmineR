@@ -19,7 +19,9 @@
 #' a quartile variable dividing the durations of the segments in quartiles is calculated.
 #' @param grouping [`character`] (default `"start"`): The timestamps, `"start"` or `"complete"`, which are binned in the histogram.
 #' @param bins [`numeric`] (default `30`): The number of bins in the aggregated performance spectrum.
-#'
+#' @param scale [`ggplot2`] scale function (default [`scale_fill_discrete_bupaR`][`bupaR::scale_fill_discrete_bupaR`]):
+#' Set color scale. Defaults to [`scale_fill_discrete_bupaR`][`bupaR::scale_fill_discrete_bupaR`]. 
+#' 
 #' @return A [`ggplot2`] object describing the aggregated performance spectrum.
 #'
 #' @seealso [`ps_detailed()`]
@@ -45,6 +47,7 @@ ps_aggregated <- function(log,
                           n_segments,
                           classification = NULL,
                           grouping = c("start", "complete"),
+                          scale = NULL,
                           bins = 30) {
   UseMethod("ps_aggregated")
 }
@@ -56,6 +59,7 @@ ps_aggregated.log <- function(log,
                               n_segments,
                               classification = NULL,
                               grouping = c("start", "complete"),
+                              scale = NULL,
                               bins = 30) {
 
   grouping <- arg_match(grouping)
@@ -79,7 +83,7 @@ ps_aggregated.log <- function(log,
   # Create the plot
   #plot_aggregated(seg, "CLASSIFICATION", grouping, bins)
   seg %>%
-    plot(classification, grouping, bins)
+    plot(classification, grouping, bins, scale)
 }
 
 #' @describeIn ps_aggregated Plot aggregated performance spectrum for a [`grouped_log`][`bupaR::grouped_log`].
@@ -89,6 +93,7 @@ ps_aggregated.grouped_log <- function(log,
                                       n_segments,
                                       classification = NULL,
                                       grouping = c("start", "complete"),
+                                      scale = NULL,
                                       bins = NULL) {
 
   if (is.null(classification)) {
