@@ -1,5 +1,5 @@
 ---
-title: "introduction_to_psmineR"
+title: "Introduction to psmineR"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{introduction_to_psmineR}
