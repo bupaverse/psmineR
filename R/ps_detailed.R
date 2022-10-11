@@ -15,13 +15,14 @@
 #' @seealso [`ps_aggregated()`]
 #'
 #' @examples
+#' \donttest{
 #' library(psmineR)
 #' library(eventdataR)
 #'
 #' sepsis %>%
 #'  ps_detailed(segment_coverage = 0.2,
 #'              classification = "quartile")
-#'
+#' }
 #' @export
 ps_detailed <- function(log,
                         segment_coverage,

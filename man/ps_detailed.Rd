@@ -65,18 +65,19 @@ variability of durations in a segment across cases and time (Denisov \emph{et al
 
 }}
 \examples{
+\donttest{
 library(psmineR)
 library(eventdataR)
 
 sepsis \%>\%
  ps_detailed(segment_coverage = 0.2,
              classification = "quartile")
-
+}
 }
 \references{
 Denisov, V., Fahland, D., & van der Aalst, W. M. P. (2018). Unbiased, Fine-Grained Description of Processes Performance from Event Data.
 In M. Weske, M. Montali, I. Weber, & J. vom Brocke (Eds.), Proceedings of the 16th International Conference on Business Process Management
-(Vol. 11080, pp. 139–157). Springer International Publishing. \url{https://doi.org/10.1007/978-3-319-98648-7_9}
+(Vol. 11080, pp. 139–157). Springer International Publishing. \doi{10.1007/978-3-319-98648-7_9}
 }
 \seealso{
 \code{\link[=ps_aggregated]{ps_aggregated()}}
