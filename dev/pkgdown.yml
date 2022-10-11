@@ -3,7 +3,7 @@ pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
   introduction_to_psmineR: introduction_to_psmineR.html
-last_built: 2022-10-11T14:31Z
+last_built: 2022-10-11T16:49Z
 urls:
   reference: https://bupaverse.github.io/psmineR/reference
   article: https://bupaverse.github.io/psmineR/articles
