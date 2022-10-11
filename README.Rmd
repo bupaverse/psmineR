@@ -41,12 +41,3 @@ You can install the development version of **psmineR** from [GitHub](https://git
 # install.packages("devtools")
 devtools::install_github("bupaverse/psmineR")
 ```
-
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-```{r example}
-library(psmineR)
-## basic example code
-```
